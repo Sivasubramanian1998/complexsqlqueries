@@ -1,0 +1,276 @@
+create database student;
+
+use student
+/*creating a table*/
+create table studentinfo(
+id int primary key,
+name varchar(30),
+gender varchar(20),
+department varchar(10)  
+);
+/*inserting values into the table*/
+insert into studentinfo values(1,'rohan','male','IT');
+insert into studentinfo values(2,'rema','female','EEE');
+insert into studentinfo values(3,'saran','male','ECE');
+insert into studentinfo values(4,'anjali','female','ECE');
+insert into studentinfo values(5,'john','male','MECH');
+insert into studentinfo values(6,'sarah','female','BIO');
+insert into studentinfo values(7,'ravi','male','CSE');
+insert into studentinfo values(8,'tara','female','AERO');
+insert into studentinfo values(9,'jai','male','CHEM');
+insert into studentinfo values(10,'rakshitha','female','CIVIL');
+
+select * from studentinfo;
+
+/*creating a stored procedure*/
+create procedure spgetstudents
+as
+begin
+select name,gender from studentinfo
+end
+
+/*executing a stored procedure*/
+exec spgetstudents;
+
+/*stored procedures with parameters acting as placeholders*/
+create procedure spgetstudentsbygenderanddepartment
+@gender nvarchar(20),
+@department varchar(20)
+as
+begin
+select name,gender,department from studentinfo where gender = @gender and department = @department
+end
+
+/*executing a stored procedure by passing in the parameters*/
+spgetstudentsbygenderanddepartment 'male','IT'
+
+/*to view the definition of stored procedures by mang use of system stored procedure*/
+sp_helptext spgetstudents
+
+create procedure spgetstudent
+as
+begin
+select name,gender from studentinfo order by name
+end
+
+/*droping a stored procedure*/
+drop procedure spgetstudent
+
+/*altering a stored procedure and adding a encryption*/
+alter procedure spgetstudentsbygenderanddepartment
+@gender nvarchar(20),
+@department varchar(10)
+with encryption
+as
+begin
+select name,gender,department from studentinfo where gender = @gender and department = @department
+end
+
+create database human;
+use human;
+
+use student;
+
+create table book(
+bookid int primary key,
+bookname varchar(30),
+bookauthor varchar(20),
+bookrate int
+);
+
+alter table book drop column bookrate
+
+alter table movie add bookreleasedate date
+
+select * from book;
+
+update book set bookauthor = 'beethoven' where bookid = 101;
+update book set bookauthor = 'stephen king' where bookid = 102;
+update book set bookauthor = 'wordsworth' where bookid = 103;
+update book set bookauthor = 'shakesphere' where bookid = 104;
+update book set bookauthor = 'oscar wilde' where bookid = 105;
+
+
+
+insert into book values(101,'era of music','beethoven',350);
+insert into book values(102,'the shining','stephen king',1340);
+insert into book values(103,'a beautiful day in neighbourhood','wordsworth',250);
+insert into book values(104,'comedy of error','shakesphere',450);
+insert into book values(105,'the giant man','oscar wilde',500);
+
+alter table book bookupdatedprice int
+
+update movie set bookupdatedprice = 500 where bookid = 101;
+update movie set bookupdatedprice = 2000 where bookid = 102;
+update movie set bookupdatedprice = 450 where bookid = 103;
+update movie set bookupdatedprice = 600 where bookid = 104;
+update movie set bookupdatedprice = 800 where bookid = 105;
+
+
+select * from book;
+
+alter procedure spbook
+as
+begin
+select bookname,bookupdatedprice,bookauthor from book order by bookname asc
+end
+
+execute spbook
+
+alter proc spbookcriteria(@minprice as int, @maxprice as int,@title as varchar(max))
+as
+begin
+select bookname,bookprice from book where 
+bookprice >= @minlength and 
+bookprice <= @maxlength and
+bookname like '%'+ @title +'%'
+
+order by bookprice asc
+end
+
+execute spbookcriteria @minlength=100,@maxlength=200,@title='arch'
+
+use student
+
+select * from book;
+
+create table tblpeople(
+actorid int primary key,
+actorname varchar(30)
+); 
+
+insert into tblpeople values(1,'bharath');
+insert into tblpeople values(2,'siva');
+insert into tblpeople values(3,'subramanian');
+
+
+/*creating triggers on actor table*/
+create trigger trgpeoplechanged
+on tblpeople
+after insert,update,delete
+as
+begin
+		print 'unexpected event occured in a table'
+end
+
+/*testing the triggers by making use of dml triggers like insert,update and delete comands*/
+insert into tblpeople values(123,'test');
+update tblpeople set actorid = 600 where actorname = 'siva';
+delete from tblpeople where actorid = 2;
+
+/*creating instead of triggers*/
+create trigger trgpeopleinserted
+on tblpeople
+instead of insert
+as
+begin
+	raiserror ('actors cannot be inserted',6,1)
+end
+
+insert into tblpeople values(123,'akash');
+
+select * from tblpeople where actorid = 123
+
+
+create table employee(
+id int primary key,
+name varchar(30),
+gender varchar(20),
+departmentid int
+);
+
+create table department(
+
+deptid int primary key,
+deptname varchar(30),
+foreign key(deptid) references employee(id)
+
+);
+
+
+insert into employee values(1,'rohan','male',3);
+insert into employee values(2,'rema','female',2);
+insert into employee values(3,'sharan','male',1);
+insert into employee values(4,'anjali,'female',4);
+insert into employee values(5,'john','male',1);
+insert into employee values(6,'sarah','female',3);
+
+insert into department values(1,'IT');
+insert into department values(2,'EEE');
+insert into department values(3,'ECE');
+insert into department values(4,'MECH');
+
+
+select * from employee;
+select * from department;
+
+/*creating views on the table*/
+create view viewemployeedetails
+as
+select id,name,gender,deptname
+from employee join department
+on department.deptid = employee.departmentid
+
+select * from viewemployeedetails
+
+create table updatetable(
+id int primary key,
+name varchar(30),
+salary bigint,
+gender varchar(20),
+departmentid int );
+
+insert into updatetable values(1,'rohan',5000,'male',3);
+insert into updatetable values(2,'rema',3400,'female',1);
+insert into updatetable values(3,'sharan',6000,'male',1);
+insert into updatetable values(4,'anjali',4800,'female',4);
+insert into updatetable values(5,'john',3200,'male',1);
+insert into updatetable values(6,'sarah',4800,'female',3);
+
+select * from updatetable;
+
+create table tblemployeeupdate(
+id int primary key,
+updatedata varchar(100)
+);
+
+create trigger tr_employee
+on updatetable
+for insert
+as
+begin
+
+	declare @id int
+	select @id = id from inserted
+
+	insert into tblemployeeupdate values('new employee with id = ' + cast(@id as nvarchar(5)) + ' is added at' + cast(Getdate() as nvarchar(20)));
+
+
+end
+
+insert into employeeupdate values(7,'mohan',1800,'male',2);
+ 
+
+ create trigger tr_employee
+ on updatetable
+ for delete
+ as
+ begin
+
+	declare @id = id int
+	select @id = id from deleted
+
+	insert into tblemployeeupdate values('new employee with id' + cast(@id as nvarchar(10)) + 'is added at' + cast(Getdate() as nvarchar(20)));
+end
+
+create table tr_employee
+on updatetable
+for update
+as
+begin
+
+	select * from inserted;
+	select * from deleted;
+end
+
+update updatetable set name = 'sanju', salary = 5000, gender = 'male' where id = 4;
